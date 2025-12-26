@@ -1,0 +1,6 @@
+@RescueSphere.Api_HostAddress = http://localhost:5052
+
+GET {{RescueSphere.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
