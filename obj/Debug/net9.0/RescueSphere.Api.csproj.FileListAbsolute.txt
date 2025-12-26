@@ -144,3 +144,5 @@ C:\Users\Sude\source\repos\RescueSphere.Api\bin\Debug\net9.0\runtimes\win-arm\na
 C:\Users\Sude\source\repos\RescueSphere.Api\bin\Debug\net9.0\runtimes\win-arm64\native\e_sqlite3.dll
 C:\Users\Sude\source\repos\RescueSphere.Api\bin\Debug\net9.0\runtimes\win-x64\native\e_sqlite3.dll
 C:\Users\Sude\source\repos\RescueSphere.Api\bin\Debug\net9.0\runtimes\win-x86\native\e_sqlite3.dll
+C:\Users\Sude\source\repos\RescueSphere.Api\obj\Debug\net9.0\RescueSphere.Api.sourcelink.json
+C:\Users\Sude\source\repos\RescueSphere.Api\bin\Debug\net9.0\BCrypt.Net-Next.dll
