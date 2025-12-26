@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RescueSphere.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6a4d7dca357f64335b87dc94309edb5fe14f5fa3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+67e5e39cec9c9c53ae46317fba6bf6457738d6c3")]
 [assembly: System.Reflection.AssemblyProductAttribute("RescueSphere.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RescueSphere.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
