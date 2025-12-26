@@ -18,7 +18,6 @@ public class UserService : IUserService
 
     public async Task<UserResponseDto> CreateUserAsync(CreateUserDto dto)
     {
-        // Şimdilik çok basit bir hash – ileride JWT kısmında geliştiririz
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
         var user = new User
@@ -26,7 +25,9 @@ public class UserService : IUserService
             Username = dto.Username,
             Email = dto.Email,
             PasswordHash = passwordHash,
-            Role = UserRole.Citizen
+            Role = UserRole.Citizen,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         _context.Users.Add(user);
@@ -37,21 +38,26 @@ public class UserService : IUserService
 
     public async Task<List<UserResponseDto>> GetAllAsync()
     {
-        var users = await _context.Users.AsNoTracking().ToListAsync();
+        var users = await _context.Users
+            .AsNoTracking()
+            .Where(u => !u.IsDeleted)
+            .ToListAsync();
+
         return users.Select(MapToResponse).ToList();
     }
 
     public async Task<UserResponseDto?> GetByIdAsync(int id)
     {
-        var user = await _context.Users.AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
 
         return user is null ? null : MapToResponse(user);
     }
 
     public async Task<UserResponseDto?> UpdateAsync(int id, UpdateUserDto dto)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
         if (user is null) return null;
 
         if (!string.IsNullOrWhiteSpace(dto.Username))
@@ -72,7 +78,7 @@ public class UserService : IUserService
 
     public async Task<bool> SoftDeleteAsync(int id)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
         if (user is null) return false;
 
         user.IsDeleted = true;
