@@ -3,6 +3,9 @@ using RescueSphere.Api.Data;
 using RescueSphere.Api.Services.Interfaces;
 using RescueSphere.Api.Services.Implementations;
 using RescueSphere.Api.Common;
+using RescueSphere.Api.DTOs.HelpRequests;
+using RescueSphere.Api.Services.Interfaces;
+
 
 // DTOs
 using RescueSphere.Api.DTOs.Users;
@@ -128,6 +131,63 @@ app.MapDelete("/categories/{id:int}", async (int id, ISupportCategoryService ser
 
     return Results.Ok(ApiResponse<string>.Ok(null, "Category deleted"));
 });
+// ================= HELP REQUEST ENDPOINTS =================
+
+app.MapPost("/help-requests", async (
+    HelpRequestCreateDto dto,
+    IHelpRequestService service) =>
+{
+    var created = await service.CreateAsync(dto);
+    return Results.Created(
+        $"/help-requests/{created.Id}",
+        ApiResponse<HelpRequestResponseDto>.Ok(created, "Help request created"));
+});
+
+
+app.MapGet("/help-requests", async (IHelpRequestService service) =>
+{
+    var list = await service.GetAllAsync();
+    return Results.Ok(ApiResponse<List<HelpRequestResponseDto>>.Ok(list));
+});
+
+
+app.MapGet("/help-requests/{id:int}", async (int id, IHelpRequestService service) =>
+{
+    var item = await service.GetByIdAsync(id);
+    if (item is null)
+        return Results.NotFound(
+            ApiResponse<HelpRequestResponseDto>.Fail("Help request not found"));
+
+    return Results.Ok(ApiResponse<HelpRequestResponseDto>.Ok(item));
+});
+
+
+app.MapPut("/help-requests/{id:int}", async (
+    int id,
+    HelpRequestUpdateDto dto,
+    IHelpRequestService service) =>
+{
+    var updated = await service.UpdateAsync(id, dto);
+    if (updated is null)
+        return Results.NotFound(
+            ApiResponse<HelpRequestResponseDto>.Fail("Help request not found"));
+
+    return Results.Ok(
+        ApiResponse<HelpRequestResponseDto>.Ok(updated, "Help request updated"));
+});
+
+
+app.MapDelete("/help-requests/{id:int}", async (int id, IHelpRequestService service) =>
+{
+    var result = await service.SoftDeleteAsync(id);
+    if (!result)
+        return Results.NotFound(
+            ApiResponse<string>.Fail("Help request not found"));
+
+    return Results.Ok(ApiResponse<string>.Ok(null, "Help request deleted"));
+});
+
+
 
 
 // ================= ROOT =================
