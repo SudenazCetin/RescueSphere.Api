@@ -1,26 +1,24 @@
 using Microsoft.EntityFrameworkCore;
-using RescueSphere.Api.Data;
-using RescueSphere.Api.Services.Interfaces;
-using RescueSphere.Api.Services.Implementations;
 using RescueSphere.Api.Common;
-using RescueSphere.Api.DTOs.HelpRequests;
-using RescueSphere.Api.Services.Interfaces;
-
-
-// DTOs
+using RescueSphere.Api.Data;
 using RescueSphere.Api.DTOs.Users;
 using RescueSphere.Api.DTOs.Categories;
 using RescueSphere.Api.DTOs.HelpRequests;
+using RescueSphere.Api.DTOs.VolunteerAssignments;
+using RescueSphere.Api.Services.Interfaces;
+using RescueSphere.Api.Services.Implementations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ================== SERVICES ==================
+// ================== DATABASE ==================
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=rescueSphere.db"));
 
+// ================== SERVICES ==================
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISupportCategoryService, SupportCategoryService>();
 builder.Services.AddScoped<IHelpRequestService, HelpRequestService>();
+builder.Services.AddScoped<IVolunteerAssignmentService, VolunteerAssignmentService>();
 
 // ================== SWAGGER ==================
 builder.Services.AddEndpointsApiExplorer();
@@ -40,7 +38,6 @@ app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "RescueSphere API v1");
 });
-
 
 // ================= USERS =================
 
@@ -79,7 +76,7 @@ app.MapPut("/users/{id:int}", async (int id, UpdateUserDto dto, IUserService ser
     return Results.Ok(ApiResponse<UserResponseDto>.Ok(updated, "User updated successfully"));
 });
 
-// DELETE
+// DELETE (SOFT)
 app.MapDelete("/users/{id:int}", async (int id, IUserService service) =>
 {
     var result = await service.SoftDeleteAsync(id);
@@ -88,7 +85,6 @@ app.MapDelete("/users/{id:int}", async (int id, IUserService service) =>
 
     return Results.Ok(ApiResponse<string>.Ok(null, "User deleted successfully"));
 });
-
 
 // ================= CATEGORIES =================
 
@@ -131,18 +127,8 @@ app.MapDelete("/categories/{id:int}", async (int id, ISupportCategoryService ser
 
     return Results.Ok(ApiResponse<string>.Ok(null, "Category deleted"));
 });
-// ================= HELP REQUEST ENDPOINTS =================
 
-app.MapPost("/help-requests", async (
-    HelpRequestCreateDto dto,
-    IHelpRequestService service) =>
-{
-    var created = await service.CreateAsync(dto);
-    return Results.Created(
-        $"/help-requests/{created.Id}",
-        ApiResponse<HelpRequestResponseDto>.Ok(created, "Help request created"));
-});
-
+// ================= HELP REQUESTS =================
 
 app.MapGet("/help-requests", async (IHelpRequestService service) =>
 {
@@ -150,47 +136,51 @@ app.MapGet("/help-requests", async (IHelpRequestService service) =>
     return Results.Ok(ApiResponse<List<HelpRequestResponseDto>>.Ok(list));
 });
 
-
 app.MapGet("/help-requests/{id:int}", async (int id, IHelpRequestService service) =>
 {
     var item = await service.GetByIdAsync(id);
     if (item is null)
-        return Results.NotFound(
-            ApiResponse<HelpRequestResponseDto>.Fail("Help request not found"));
+        return Results.NotFound(ApiResponse<string>.Fail("Help request not found"));
 
     return Results.Ok(ApiResponse<HelpRequestResponseDto>.Ok(item));
 });
 
-
-app.MapPut("/help-requests/{id:int}", async (
-    int id,
-    HelpRequestUpdateDto dto,
-    IHelpRequestService service) =>
+app.MapPut("/help-requests/{id:int}", async (int id, HelpRequestUpdateDto dto, IHelpRequestService service) =>
 {
     var updated = await service.UpdateAsync(id, dto);
     if (updated is null)
-        return Results.NotFound(
-            ApiResponse<HelpRequestResponseDto>.Fail("Help request not found"));
+        return Results.NotFound(ApiResponse<string>.Fail("Help request not found"));
 
-    return Results.Ok(
-        ApiResponse<HelpRequestResponseDto>.Ok(updated, "Help request updated"));
+    return Results.Ok(ApiResponse<HelpRequestResponseDto>.Ok(updated, "Help request updated"));
 });
-
 
 app.MapDelete("/help-requests/{id:int}", async (int id, IHelpRequestService service) =>
 {
     var result = await service.SoftDeleteAsync(id);
     if (!result)
-        return Results.NotFound(
-            ApiResponse<string>.Fail("Help request not found"));
+        return Results.NotFound(ApiResponse<string>.Fail("Help request not found"));
 
     return Results.Ok(ApiResponse<string>.Ok(null, "Help request deleted"));
 });
 
+// ================= VOLUNTEER ASSIGNMENTS =================
 
+app.MapPost("/volunteer-assignments", async (
+    VolunteerAssignmentCreateDto dto,
+    IVolunteerAssignmentService service) =>
+{
+    var result = await service.AssignAsync(dto);
 
+    if (!result)
+        return Results.BadRequest(
+            ApiResponse<string>.Fail("HelpRequest not found"));
+
+    return Results.Ok(
+        ApiResponse<string>.Ok(null, "Volunteer assigned successfully"));
+});
 
 // ================= ROOT =================
+
 app.MapGet("/", () => Results.Redirect("/swagger/index.html"));
 
 app.Run();
