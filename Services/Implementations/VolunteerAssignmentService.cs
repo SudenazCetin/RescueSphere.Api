@@ -15,11 +15,11 @@ public class VolunteerAssignmentService : IVolunteerAssignmentService
         _context = context;
     }
 
-    // ASSIGN (POST)
+    // ================= ASSIGN (POST) =================
     public async Task<bool> AssignAsync(VolunteerAssignmentCreateDto dto)
     {
         var helpRequestExists = await _context.HelpRequests
-            .AnyAsync(x => x.Id == dto.HelpRequestId);
+            .AnyAsync(x => x.Id == dto.HelpRequestId && !x.IsDeleted);
 
         if (!helpRequestExists)
             return false;
@@ -38,27 +38,28 @@ public class VolunteerAssignmentService : IVolunteerAssignmentService
         return true;
     }
 
-    // GET ALL
+    // ================= GET ALL =================
     public async Task<List<VolunteerAssignmentResponseDto>> GetAllAsync()
     {
         var list = await _context.VolunteerAssignments
             .AsNoTracking()
+            .Where(x => !x.IsDeleted)
             .ToListAsync();
 
         return list.Select(MapToResponse).ToList();
     }
 
-    // GET BY ID
+    // ================= GET BY ID =================
     public async Task<VolunteerAssignmentResponseDto?> GetByIdAsync(int id)
     {
         var entity = await _context.VolunteerAssignments
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == id);
+            .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
 
         return entity is null ? null : MapToResponse(entity);
     }
 
-    // MAP
+    // ================= MAPPER =================
     private static VolunteerAssignmentResponseDto MapToResponse(VolunteerAssignment entity)
     {
         return new VolunteerAssignmentResponseDto

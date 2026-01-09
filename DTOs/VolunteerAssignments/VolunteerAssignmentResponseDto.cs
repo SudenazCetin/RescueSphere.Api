@@ -1,5 +1,3 @@
-namespace RescueSphere.Api.DTOs.VolunteerAssignments;
-
 public class VolunteerAssignmentResponseDto
 {
     public int Id { get; set; }
