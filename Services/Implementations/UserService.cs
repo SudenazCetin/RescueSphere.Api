@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using RescueSphere.Api.Common;
 using RescueSphere.Api.Data;
 using RescueSphere.Api.Domain.Entities;
 using RescueSphere.Api.DTOs.Users;
